@@ -17,4 +17,12 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-module.exports = authenticateToken;
+const authorizeRoles = (roles) => (req, res, next) => {
+  if (req.user && roles.includes(req.user.role)) {
+    next();
+  } else {
+    res.status(403).json({ error: `Access denied. Only users with the roles: ${roles.join(', ')} are allowed.` });
+  }
+};
+
+module.exports = { authenticateToken, authorizeRoles };
