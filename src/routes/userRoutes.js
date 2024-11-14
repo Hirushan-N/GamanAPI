@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -44,6 +45,8 @@ router.post('/', userController.registerUser);
  *   get:
  *     summary: Search users or get all users
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: username
@@ -66,7 +69,7 @@ router.post('/', userController.registerUser);
  *       500:
  *         description: Internal server error
  */
-router.get('/', userController.searchUsers);
+router.get('/', authenticateToken, userController.searchUsers);
 
 /**
  * @swagger
@@ -74,6 +77,8 @@ router.get('/', userController.searchUsers);
  *   get:
  *     summary: Get a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -89,7 +94,7 @@ router.get('/', userController.searchUsers);
  *       500:
  *         description: Internal server error
  */
-router.get('/:userId', userController.getUserById);
+router.get('/:userId', authenticateToken, userController.getUserById);
 
 /**
  * @swagger
@@ -97,6 +102,8 @@ router.get('/:userId', userController.getUserById);
  *   put:
  *     summary: Update a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -125,7 +132,7 @@ router.get('/:userId', userController.getUserById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', userController.updateUser);
+router.put('/:id', authenticateToken, userController.updateUser);
 
 /**
  * @swagger
@@ -133,6 +140,8 @@ router.put('/:id', userController.updateUser);
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -148,6 +157,6 @@ router.put('/:id', userController.updateUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id', authenticateToken, userController.deleteUser);
 
 module.exports = router;
