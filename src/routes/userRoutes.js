@@ -36,6 +36,118 @@ const router = express.Router();
  *       400:
  *         description: Bad request
  */
-router.post('/', userController.registerUser); // Path should match '/' if mounted as '/api/user'
+router.post('/', userController.registerUser);
+
+/**
+ * @swagger
+ * /user:
+ *   get:
+ *     summary: Search users or get all users
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: username
+ *         schema:
+ *           type: string
+ *         description: The username to filter by
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: The role to filter by
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: The email to filter by
+ *     responses:
+ *       200:
+ *         description: List of users matching the search criteria or all users if no criteria are provided
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', userController.searchUsers);
+
+/**
+ * @swagger
+ * /user/{userId}:
+ *   get:
+ *     summary: Get a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user
+ *     responses:
+ *       200:
+ *         description: User details
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:userId', userController.getUserById);
+
+/**
+ * @swagger
+ * /user/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/:id', userController.updateUser);
+
+/**
+ * @swagger
+ * /user/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;
