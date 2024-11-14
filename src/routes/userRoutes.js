@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const router = express.Router();
-const authenticateToken = require('../middleware/authMiddleware');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -69,7 +69,7 @@ router.post('/', userController.registerUser);
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticateToken, userController.searchUsers);
+router.get('/', authenticateToken, authorizeRoles(['admin']), userController.searchUsers);
 
 /**
  * @swagger
@@ -94,7 +94,7 @@ router.get('/', authenticateToken, userController.searchUsers);
  *       500:
  *         description: Internal server error
  */
-router.get('/:userId', authenticateToken, userController.getUserById);
+router.get('/:userId', authenticateToken, authorizeRoles(['admin']), userController.getUserById);
 
 /**
  * @swagger
@@ -132,7 +132,7 @@ router.get('/:userId', authenticateToken, userController.getUserById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticateToken, userController.updateUser);
+router.put('/:id', authenticateToken, authorizeRoles(['admin']), userController.updateUser);
 
 /**
  * @swagger
@@ -157,6 +157,6 @@ router.put('/:id', authenticateToken, userController.updateUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticateToken, userController.deleteUser);
+router.delete('/:id', authenticateToken, authorizeRoles(['admin']), userController.deleteUser);
 
 module.exports = router;
