@@ -7,6 +7,7 @@ const cors = require('cors');
 const swaggerSetup = require('./swagger');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const routeRoutes = require('./routes/routeRoutes');
 
 dotenv.config();
 connectDB();
@@ -29,7 +30,8 @@ app.get('/', (req, res) => {
 
 //============================ROUTES============================//
 app.use('/api/auth', authRoutes); // Use auth routes
-app.use('/api/user', userRoutes); // Use user routes
+app.use('/api/users', userRoutes); // Use users routes
+app.use('/api/routes', routeRoutes); // Use bus-routes routes
 
 
 swaggerSetup(app);

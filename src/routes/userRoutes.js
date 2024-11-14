@@ -12,7 +12,7 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
 
 /**
  * @swagger
- * /user:
+ * /users:
  *   post:
  *     summary: Register a new user
  *     tags: [Users]
@@ -41,7 +41,7 @@ router.post('/', userController.registerUser);
 
 /**
  * @swagger
- * /user:
+ * /users:
  *   get:
  *     summary: Search users or get all users
  *     tags: [Users]
@@ -73,7 +73,7 @@ router.get('/', authenticateToken, authorizeRoles(['admin']), userController.sea
 
 /**
  * @swagger
- * /user/{userId}:
+ * /users/{userId}:
  *   get:
  *     summary: Get a user by ID
  *     tags: [Users]
@@ -98,7 +98,7 @@ router.get('/:userId', authenticateToken, authorizeRoles(['admin']), userControl
 
 /**
  * @swagger
- * /user/{id}:
+ * /users/{id}:
  *   put:
  *     summary: Update a user by ID
  *     tags: [Users]
@@ -136,7 +136,7 @@ router.put('/:id', authenticateToken, authorizeRoles(['admin']), userController.
 
 /**
  * @swagger
- * /user/{id}:
+ * /users/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [Users]
