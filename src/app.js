@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const routeRoutes = require('./routes/routeRoutes');
 const busRoutes = require('./routes/busRoutes');
 const tripScheduleRoutes = require('./routes/tripScheduleRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
 
 dotenv.config();
 connectDB();
@@ -35,8 +36,8 @@ app.use('/api/auth', authRoutes); // Use auth routes
 app.use('/api/users', userRoutes); // Use users routes
 app.use('/api/routes', routeRoutes); // Use bus-routes routes
 app.use('/api/buses', busRoutes); // Use bus routes
-app.use('/api/trip-schedules', tripScheduleRoutes); // Use bus routes
-
+app.use('/api/trip-schedules', tripScheduleRoutes); // Use trip-schedules routes
+app.use('/api/tickets', ticketRoutes); // Use trip-schedules routes
 
 
 swaggerSetup(app);
