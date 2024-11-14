@@ -18,7 +18,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 const authorizeRoles = (roles) => (req, res, next) => {
-  if (req.user && roles.includes(req.user.role)) {
+  if ((req.user && roles.includes(req.user.role)) || roles.includes('commuter')) {
     next();
   } else {
     res.status(403).json({ error: `Access denied. Only users with the roles: ${roles.join(', ')} are allowed.` });
