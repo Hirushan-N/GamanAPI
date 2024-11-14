@@ -4,6 +4,9 @@ const connectDB = require('./config/db');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
+const swaggerSetup = require('./swagger');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config();
 connectDB();
@@ -24,7 +27,16 @@ app.get('/', (req, res) => {
     res.send('Hello from Gaman API!');
 });
 
+//============================ROUTES============================//
+app.use('/api/auth', authRoutes); // Use auth routes
+app.use('/api/user', userRoutes); // Use user routes
+
+
+swaggerSetup(app);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Gaman API is running on http://localhost:${PORT}`);
+  console.log(`Swagger Documentataion running on http://localhost:${PORT}/api-docs`);
+
 });
