@@ -144,6 +144,48 @@ The API follows RESTful design principles, ensuring consistency and scalability:
 - **Validation**: Implemented using Joi to enforce input validation and data integrity.
 - **Error Handling**: Centralized error handling middleware provides meaningful error messages to the client.
 
+## Branching Strategy
+To maintain a clear development flow and structure, the following branching strategy is adopted:
+
+### Main Branch (`main`)
+- The stable version of the code.
+- Contains production-ready code only.
+
+### Development Branch (`development`)
+- The active development branch where new features and bug fixes are integrated before merging into `main`.
+
+### Feature Branches (`feature/branch-name`)
+- Branches created from `development` for each new feature or task.
+- Examples:
+  - `feature/project-setup`
+  - `feature/user-authentication`
+  - `feature/route-management`
+  - `feature/booking-system`
+
+### Bugfix Branches (`bugfix/branch-name`)
+- Used for fixing bugs and are created from `development` or `main` depending on the severity.
+- Example: `bugfix/login-error`
+
+### Workflow:
+1. **Create a feature branch** from `development`:
+   ```bash
+   git checkout development
+   git checkout -b feature/new-feature
+   ```
+2. **Commit regularly** and push changes to the remote repository.
+3. **Merge the feature branch** into `development` once completed:
+   ```bash
+   git checkout development
+   git merge feature/new-feature
+   git branch -d feature/new-feature
+   ```
+4. **Create a pull request** to merge `development` into `main` when the feature set is ready.
+
+**Benefits**:
+- Organized and modular development.
+- Easier code review and testing.
+- Efficient bug tracking and hotfix management.
+
 ## Security Practices
 - **JWT Authentication**: Secure access to protected routes.
 - **Rate Limiting**: Prevents abuse by limiting requests from a single IP.
