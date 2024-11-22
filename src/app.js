@@ -11,6 +11,8 @@ const routeRoutes = require('./routes/routeRoutes');
 const busRoutes = require('./routes/busRoutes');
 const tripScheduleRoutes = require('./routes/tripScheduleRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
+const morgan = require('morgan');
+const logger = require('./utils/logger');
 
 dotenv.config();
 connectDB();
@@ -38,6 +40,7 @@ app.use('/api/routes', routeRoutes); // Use bus-routes routes
 app.use('/api/buses', busRoutes); // Use bus routes
 app.use('/api/trip-schedules', tripScheduleRoutes); // Use trip-schedules routes
 app.use('/api/tickets', ticketRoutes); // Use trip-schedules routes
+app.use(morgan('combined', { stream: logger.stream }));
 
 
 swaggerSetup(app);

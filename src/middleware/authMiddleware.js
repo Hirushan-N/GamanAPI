@@ -1,11 +1,14 @@
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger'); // Import logger for better tracking
 
+// Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Access denied. No token provided.' });
+    logger.warn('Unauthorized access attempt without token', { endpoint: req.originalUrl });
+    return res.status(401).json({ error: 'Unauthorized access. Token required.' });
   }
 
   try {
@@ -13,15 +16,22 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(403).json({ error: 'Invalid token.' });
+    if (err.name === 'TokenExpiredError') {
+      logger.warn('Expired token attempt', { endpoint: req.originalUrl, error: err.message });
+      return res.status(403).json({ error: 'Token has expired. Please log in again.' });
+    }
+    logger.error('Invalid token attempt', { endpoint: req.originalUrl, error: err.message });
+    return res.status(403).json({ error: 'Invalid token. Authentication failed.' });
   }
 };
 
+// Middleware to authorize specific roles
 const authorizeRoles = (roles) => (req, res, next) => {
-  if ((req.user && roles.includes(req.user.role)) || roles.includes('commuter')) {
+  if (req.user && roles.includes(req.user.role)) {
     next();
   } else {
-    res.status(403).json({ error: `Access denied. Only users with the roles: ${roles.join(', ')} are allowed.` });
+    logger.warn('Access denied due to insufficient role', { role: req.user ? req.user.role : 'none', endpoint: req.originalUrl });
+    return res.status(403).json({ error: `Access denied. Only users with roles: ${roles.join(', ')} can access this endpoint.` });
   }
 };
 

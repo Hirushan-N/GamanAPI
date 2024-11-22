@@ -1,6 +1,9 @@
 const express = require('express');
 const ticketController = require('../controllers/ticketController');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+const validateRequest = require('../middleware/validationMiddleware');
+const logger = require('../utils/logger');
+const Joi = require('joi');
 const router = express.Router();
 
 /**
@@ -9,6 +12,26 @@ const router = express.Router();
  *   name: Tickets
  *   description: Ticket management endpoints
  */
+
+// Validation schemas for tickets
+const createTicketValidationSchema = Joi.object({
+  commuterPhone: Joi.string().pattern(/^\d{10}$/).required().example('0712345678'),
+  tripId: Joi.string().required(),
+  busId: Joi.string().required(),
+  routeId: Joi.string().required(),
+  seatNumber: Joi.number().integer().min(1).required(),
+  paymentType: Joi.string().valid('cash', 'card', 'online').required(),
+});
+
+const confirmTicketValidationSchema = Joi.object({
+  ticketId: Joi.string().required(),
+  otp: Joi.string().length(4).required(),
+});
+
+const updateTicketValidationSchema = Joi.object({
+  seatNumber: Joi.number().integer().min(1).optional(),
+  paymentType: Joi.string().valid('cash', 'card', 'online').optional(),
+});
 
 /**
  * @swagger
@@ -53,7 +76,16 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticateToken, authorizeRoles(['commuter']), ticketController.searchTickets);
+router.get(
+  '/',
+  authenticateToken,
+  authorizeRoles(['commuter']),
+  (req, res, next) => {
+    logger.info('Fetching tickets with filters:', req.query);
+    next();
+  },
+  ticketController.searchTickets
+);
 
 /**
  * @swagger
@@ -89,7 +121,17 @@ router.get('/', authenticateToken, authorizeRoles(['commuter']), ticketControlle
  *       400:
  *         description: Bad request
  */
-router.post('/', authenticateToken, authorizeRoles(['commuter']), ticketController.createTicket);
+router.post(
+  '/',
+  authenticateToken,
+  authorizeRoles(['commuter']),
+  validateRequest(createTicketValidationSchema),
+  (req, res, next) => {
+    logger.info(`Creating a new ticket: ${JSON.stringify(req.body)}`);
+    next();
+  },
+  ticketController.createTicket
+);
 
 /**
  * @swagger
@@ -118,7 +160,17 @@ router.post('/', authenticateToken, authorizeRoles(['commuter']), ticketControll
  *       404:
  *         description: Ticket not found
  */
-router.post('/confirm', authenticateToken, authorizeRoles(['commuter']), ticketController.confirmTicket);
+router.post(
+  '/confirm',
+  authenticateToken,
+  authorizeRoles(['commuter']),
+  validateRequest(confirmTicketValidationSchema),
+  (req, res, next) => {
+    logger.info(`Confirming ticket with ID: ${req.body.ticketId}`);
+    next();
+  },
+  ticketController.confirmTicket
+);
 
 /**
  * @swagger
@@ -155,7 +207,17 @@ router.post('/confirm', authenticateToken, authorizeRoles(['commuter']), ticketC
  *       404:
  *         description: Ticket not found
  */
-router.put('/:id', authenticateToken, authorizeRoles(['commuter']), ticketController.updateTicket);
+router.put(
+  '/:id',
+  authenticateToken,
+  authorizeRoles(['commuter']),
+  validateRequest(updateTicketValidationSchema),
+  (req, res, next) => {
+    logger.info(`Updating ticket with ID: ${req.params.id}`);
+    next();
+  },
+  ticketController.updateTicket
+);
 
 /**
  * @swagger
@@ -180,6 +242,15 @@ router.put('/:id', authenticateToken, authorizeRoles(['commuter']), ticketContro
  *       404:
  *         description: Ticket not found
  */
-router.delete('/:id', authenticateToken, authorizeRoles(['commuter']), ticketController.deleteTicket);
+router.delete(
+  '/:id',
+  authenticateToken,
+  authorizeRoles(['commuter']),
+  (req, res, next) => {
+    logger.info(`Deleting ticket with ID: ${req.params.id}`);
+    next();
+  },
+  ticketController.deleteTicket
+);
 
 module.exports = router;

@@ -1,11 +1,18 @@
 const Ticket = require('../models/Ticket');
 const TripSchedule = require('../models/TripSchedule');
-const Bus = require('../models/Bus');
+const Joi = require('joi');
+const logger = require('../utils/logger');
 
-/**
- * Search Tickets
- * Provides dynamic filtering for tickets based on query parameters
- */
+// Joi validation schemas
+const ticketSchema = Joi.object({
+  commuterPhone: Joi.string().pattern(/^\d{10}$/).required(), // Example: Validates a 10-digit phone number
+  tripId: Joi.string().required(),
+  busId: Joi.string().required(),
+  routeId: Joi.string().required(),
+  seatNumber: Joi.number().integer().min(1).required(),
+  paymentType: Joi.string().valid('cash', 'card', 'online').required(),
+});
+
 exports.searchTickets = async (req, res) => {
   try {
     const filter = {};
@@ -19,16 +26,19 @@ exports.searchTickets = async (req, res) => {
     const tickets = await Ticket.find(filter).populate('tripId busId routeId');
     res.status(200).json(tickets);
   } catch (error) {
+    logger.error(`Error searching tickets: ${error.message}`);
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
 
-/**
- * Create a Ticket
- * Validates seat availability and bus capacity
- */
 exports.createTicket = async (req, res) => {
   try {
+    // Validate request body
+    const { error } = ticketSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: 'Validation failed', details: error.details.map((e) => e.message) });
+    }
+
     const { commuterPhone, tripId, busId, routeId, seatNumber, paymentType } = req.body;
 
     // Check if the trip exists
@@ -49,6 +59,9 @@ exports.createTicket = async (req, res) => {
       return res.status(400).json({ error: 'Bus capacity exceeded.' });
     }
 
+    // Generate a dynamic OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
     // Create a new ticket
     const ticket = new Ticket({
       commuterPhone,
@@ -57,20 +70,18 @@ exports.createTicket = async (req, res) => {
       routeId,
       seatNumber,
       paymentType,
-      otp: '1234', // OTP can be dynamically generated if required
+      otp,
     });
 
     await ticket.save();
-    res.status(201).json({ message: 'Ticket created. OTP sent to the commuter.', ticketId: ticket._id });
+    logger.info(`Ticket created successfully: ${ticket._id}`);
+    res.status(201).json({ message: 'Ticket created successfully. OTP sent to the commuter.', ticketId: ticket._id });
   } catch (error) {
+    logger.error(`Error creating ticket: ${error.message}`);
     res.status(400).json({ error: 'Bad Request', details: error.message });
   }
 };
 
-/**
- * Confirm a Ticket
- * Validates OTP and updates ticket status to confirmed
- */
 exports.confirmTicket = async (req, res) => {
   try {
     const { ticketId, otp } = req.body;
@@ -88,16 +99,14 @@ exports.confirmTicket = async (req, res) => {
     ticket.otp = null; // Clear OTP after confirmation
     await ticket.save();
 
+    logger.info(`Ticket confirmed successfully: ${ticketId}`);
     res.status(200).json({ message: 'Ticket confirmed successfully', ticket });
   } catch (error) {
+    logger.error(`Error confirming ticket: ${error.message}`);
     res.status(400).json({ error: 'Bad Request', details: error.message });
   }
 };
 
-/**
- * Update a Ticket
- * Prevents updates to confirmed tickets
- */
 exports.updateTicket = async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,16 +122,14 @@ exports.updateTicket = async (req, res) => {
 
     // Update the ticket
     const updatedTicket = await Ticket.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    logger.info(`Ticket updated successfully: ${id}`);
     res.status(200).json({ message: 'Ticket updated successfully', ticket: updatedTicket });
   } catch (error) {
+    logger.error(`Error updating ticket: ${error.message}`);
     res.status(400).json({ error: 'Bad Request', details: error.message });
   }
 };
 
-/**
- * Delete a Ticket
- * Prevents deletion of confirmed tickets
- */
 exports.deleteTicket = async (req, res) => {
   try {
     const { id } = req.params;
@@ -138,8 +145,10 @@ exports.deleteTicket = async (req, res) => {
 
     // Delete the ticket
     await Ticket.findByIdAndDelete(id);
+    logger.info(`Ticket deleted successfully: ${id}`);
     res.status(200).json({ message: 'Ticket deleted successfully.' });
   } catch (error) {
+    logger.error(`Error deleting ticket: ${error.message}`);
     res.status(400).json({ error: 'Bad Request', details: error.message });
   }
 };
