@@ -17,9 +17,10 @@ const routeSchema = new mongoose.Schema({
   variant: { type: String, enum: ['EXPRESS', 'REGULAR'], default: 'REGULAR' },
   distance: { type: Number, required: true },
   averageSpeed: { type: Number, required: true },
-  duration: { type: Number, required: true }
+  duration: { type: Number, required: true },
+  status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' }
 }, {
-  timestamps: true
+  timestamps: trueA
 });
 
 module.exports = mongoose.model('Route', routeSchema);
