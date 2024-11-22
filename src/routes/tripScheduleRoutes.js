@@ -28,17 +28,23 @@ const router = express.Router();
  *           type: string
  *         description: The ID of the route to filter by
  *       - in: query
- *         name: tripId
+ *         name: tripName
  *         schema:
  *           type: string
- *         description: The unique trip ID to filter by
+ *         description: The name of the trip to filter by
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [ACTIVE, INACTIVE]
+ *         description: The status of the trip schedules to filter by
  *     responses:
  *       200:
  *         description: List of trip schedules
  *       500:
  *         description: Internal server error
  */
-router.get('/', tripScheduleController.getAllTripSchedules);
+router.get('/', authenticateToken, tripScheduleController.getAllTripSchedules);
 
 /**
  * @swagger
@@ -55,18 +61,45 @@ router.get('/', tripScheduleController.getAllTripSchedules);
  *           schema:
  *             type: object
  *             properties:
+ *               tripName:
+ *                 type: string
+ *                 description: Name of the trip
  *               busId:
  *                 type: string
+ *                 description: ID of the bus
  *               routeId:
  *                 type: string
- *               tripId:
- *                 type: string
- *               location:
- *                 type: string
- *               arrivalTime:
- *                 type: string
+ *                 description: ID of the route
  *               departureTime:
  *                 type: string
+ *                 description: ISO 8601 date-time for departure
+ *               arrivalTime:
+ *                 type: string
+ *                 description: ISO 8601 date-time for arrival
+ *               stopsSchedule:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     stop:
+ *                       type: string
+ *                       description: Stop name
+ *                     time:
+ *                       type: string
+ *                       description: ISO 8601 date-time for the stop
+ *               activeDays:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [MON, TUE, WED, THU, FRI, SAT, SUN]
+ *                 description: Active days for the trip schedule
+ *               totalBookings:
+ *                 type: number
+ *                 description: The total number of bookings for the trip (default is 0)
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE]
+ *                 description: Status of the trip schedule
  *     responses:
  *       201:
  *         description: Trip schedule created successfully
@@ -99,18 +132,42 @@ router.post('/', authenticateToken, authorizeRoles(['admin']), tripScheduleContr
  *           schema:
  *             type: object
  *             properties:
+ *               tripName:
+ *                 type: string
+ *                 description: Name of the trip
  *               busId:
  *                 type: string
+ *                 description: ID of the bus
  *               routeId:
  *                 type: string
- *               tripId:
- *                 type: string
- *               location:
- *                 type: string
- *               arrivalTime:
- *                 type: string
+ *                 description: ID of the route
  *               departureTime:
  *                 type: string
+ *                 description: ISO 8601 date-time for departure
+ *               arrivalTime:
+ *                 type: string
+ *                 description: ISO 8601 date-time for arrival
+ *               stopsSchedule:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     stop:
+ *                       type: string
+ *                       description: Stop name
+ *                     time:
+ *                       type: string
+ *                       description: ISO 8601 date-time for the stop
+ *               activeDays:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [MON, TUE, WED, THU, FRI, SAT, SUN]
+ *                 description: Active days for the trip schedule
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE]
+ *                 description: Status of the trip schedule
  *     responses:
  *       200:
  *         description: Trip schedule updated successfully

@@ -53,7 +53,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', authorizeRoles(['commuter']), ticketController.searchTickets);
+router.get('/', authenticateToken, authorizeRoles(['commuter']), ticketController.searchTickets);
 
 /**
  * @swagger
@@ -89,7 +89,7 @@ router.get('/', authorizeRoles(['commuter']), ticketController.searchTickets);
  *       400:
  *         description: Bad request
  */
-router.post('/', authorizeRoles(['commuter']), ticketController.createTicket);
+router.post('/', authenticateToken, authorizeRoles(['commuter']), ticketController.createTicket);
 
 /**
  * @swagger
@@ -118,7 +118,7 @@ router.post('/', authorizeRoles(['commuter']), ticketController.createTicket);
  *       404:
  *         description: Ticket not found
  */
-router.post('/confirm', authorizeRoles(['commuter']), ticketController.confirmTicket);
+router.post('/confirm', authenticateToken, authorizeRoles(['commuter']), ticketController.confirmTicket);
 
 /**
  * @swagger
@@ -155,7 +155,7 @@ router.post('/confirm', authorizeRoles(['commuter']), ticketController.confirmTi
  *       404:
  *         description: Ticket not found
  */
-router.put('/:id', authorizeRoles(['commuter']), ticketController.updateTicket);
+router.put('/:id', authenticateToken, authorizeRoles(['commuter']), ticketController.updateTicket);
 
 /**
  * @swagger
@@ -180,6 +180,6 @@ router.put('/:id', authorizeRoles(['commuter']), ticketController.updateTicket);
  *       404:
  *         description: Ticket not found
  */
-router.delete('/:id',authorizeRoles(['commuter']), ticketController.deleteTicket);
+router.delete('/:id', authenticateToken, authorizeRoles(['commuter']), ticketController.deleteTicket);
 
 module.exports = router;

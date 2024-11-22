@@ -7,9 +7,21 @@ const ticketSchema = new mongoose.Schema({
   busId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus', required: true },
   routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: true },
   seatNumber: { type: Number, required: true },
-  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
-  paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
-  paymentType: { type: String, enum: ['cash', 'card', 'online'], required: true }
+  status: { 
+    type: String, 
+    enum: ['pending', 'confirmed', 'cancelled'], 
+    default: 'pending' 
+  },
+  paymentStatus: { 
+    type: String, 
+    enum: ['pending', 'completed', 'failed'], 
+    default: 'pending' 
+  },
+  paymentType: { 
+    type: String, 
+    enum: ['cash', 'card', 'online'], 
+    required: true 
+  }
 }, {
   timestamps: true
 });

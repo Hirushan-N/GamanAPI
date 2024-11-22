@@ -1,12 +1,20 @@
 const mongoose = require('mongoose');
 
 const tripScheduleSchema = new mongoose.Schema({
-  busId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus', required: true },
+  tripName: { type: String, required: true },
   routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: true },
-  tripId: { type: String, required: true, unique: true },
-  location: { type: String, required: true },
-  arrivalTime: { type: String, required: true },
-  departureTime: { type: String, required: true }
+  busId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus', required: true },
+  departureTime: { type: Date, required: true },
+  arrivalTime: { type: Date, required: true },
+  stopsSchedule: [
+    {
+      stop: { type: String, required: true },
+      time: { type: Date, required: true }
+    }
+  ],
+  activeDays: { type: [String], enum: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'], required: true },
+  totalBookings: { type: Number, default: 0 },
+  status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' }
 }, {
   timestamps: true
 });

@@ -35,17 +35,23 @@ const router = express.Router();
  *           type: string
  *         description: The end location to filter by
  *       - in: query
- *         name: stops
+ *         name: stopName
  *         schema:
  *           type: string
- *         description: A specific stop to filter by (returns routes containing this stop)
+ *         description: A specific stop name to filter by (returns routes containing this stop)
+ *       - in: query
+ *         name: variant
+ *         schema:
+ *           type: string
+ *           enum: [EXPRESS, REGULAR]
+ *         description: The variant of the route (e.g., EXPRESS or REGULAR)
  *     responses:
  *       200:
  *         description: List of routes matching the search criteria or all routes if no criteria are provided
  *       500:
  *         description: Internal server error
  */
-router.get('/', routeController.searchRoutes);
+router.get('/', authenticateToken, routeController.searchRoutes);
 
 /**
  * @swagger
@@ -71,15 +77,31 @@ router.get('/', routeController.searchRoutes);
  *               stops:
  *                 type: array
  *                 items:
- *                   type: string
+ *                   type: object
+ *                   properties:
+ *                     stopName:
+ *                       type: string
+ *                     stopType:
+ *                       type: string
+ *                       enum: [REGULAR, MAJOR]
+ *                     gpsCoordinates:
+ *                       type: object
+ *                       properties:
+ *                         latitude:
+ *                           type: number
+ *                         longitude:
+ *                           type: number
+ *               variant:
+ *                 type: string
+ *                 enum: [EXPRESS, REGULAR]
  *               duration:
  *                 type: number
  *               distance:
  *                 type: number
- *                 description: The total distance of the route in kilometers or miles
+ *                 description: The total distance of the route in kilometers
  *               averageSpeed:
  *                 type: number
- *                 description: The average speed for the route in km/h or mph
+ *                 description: The average speed for the route in km/h
  *     responses:
  *       201:
  *         description: Route created successfully
@@ -121,15 +143,31 @@ router.post('/', authenticateToken, authorizeRoles(['admin']), routeController.c
  *               stops:
  *                 type: array
  *                 items:
- *                   type: string
+ *                   type: object
+ *                   properties:
+ *                     stopName:
+ *                       type: string
+ *                     stopType:
+ *                       type: string
+ *                       enum: [REGULAR, MAJOR]
+ *                     gpsCoordinates:
+ *                       type: object
+ *                       properties:
+ *                         latitude:
+ *                           type: number
+ *                         longitude:
+ *                           type: number
+ *               variant:
+ *                 type: string
+ *                 enum: [EXPRESS, REGULAR]
  *               duration:
  *                 type: number
  *               distance:
  *                 type: number
- *                 description: The total distance of the route in kilometers or miles
+ *                 description: The total distance of the route in kilometers
  *               averageSpeed:
  *                 type: number
- *                 description: The average speed for the route in km/h or mph
+ *                 description: The average speed for the route in km/h
  *     responses:
  *       200:
  *         description: Route updated successfully
