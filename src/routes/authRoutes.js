@@ -1,7 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
-const { loginRateLimiter } = require('../middleware/rateLimiter');
-const validateRequest = require('../middleware/validationMiddleware');
+const { loginRateLimiter } = require('../middleware/rateLimiterMiddleware');
+const { validateRequest } = require('../middleware/validationMiddleware');
 const logger = require('../utils/logger');
 const Joi = require('joi');
 const router = express.Router();
@@ -74,7 +74,7 @@ const loginValidationSchema = Joi.object({
 router.post(
   '/login',
   loginRateLimiter,
-  validateRequest(loginValidationSchema), // Input validation
+  validateRequest(loginValidationSchema), // Use middleware with schema
   (req, res, next) => {
     logger.info(`Login attempt for user: ${req.body.username}`);
     next();

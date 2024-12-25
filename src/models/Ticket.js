@@ -13,9 +13,9 @@ const ticketSchema = new mongoose.Schema(
       },
     },
     otp: { type: String },
-    tripId: { 
+    scheduleEntryId: { 
       type: mongoose.Schema.Types.ObjectId, 
-      ref: 'TripSchedule', 
+      ref: 'ScheduleEntry', 
       required: true 
     },
     busId: { 
@@ -48,6 +48,10 @@ const ticketSchema = new mongoose.Schema(
       enum: ['cash', 'card', 'online'], 
       required: true 
     },
+    travelDate: { 
+      type: Date, 
+      required: true 
+    },
   },
   {
     timestamps: true,
@@ -68,14 +72,15 @@ ticketSchema.pre('save', async function (next) {
     return next(new Error(`Seat number must be between 1 and ${bus.capacity}.`));
   }
 
-  // Check for duplicate ticket for the same trip and seat
+  // Check for duplicate ticket for the same scheduleEntry and seat
   const existingTicket = await Ticket.findOne({
-    tripId: this.tripId,
+    scheduleEntryId: this.scheduleEntryId,
     seatNumber: this.seatNumber,
+    travelDate: this.travelDate,
   });
 
   if (existingTicket) {
-    return next(new Error('A ticket already exists for this seat on the specified trip.'));
+    return next(new Error('A ticket already exists for this seat on the specified scheduleEntry.'));
   }
 
   next();

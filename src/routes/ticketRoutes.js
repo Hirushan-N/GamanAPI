@@ -1,7 +1,7 @@
 const express = require('express');
 const ticketController = require('../controllers/ticketController');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
-const validateRequest = require('../middleware/validationMiddleware');
+const { validateRequest } = require('../middleware/validationMiddleware');
 const logger = require('../utils/logger');
 const Joi = require('joi');
 const router = express.Router();
@@ -16,7 +16,7 @@ const router = express.Router();
 // Validation schemas for tickets
 const createTicketValidationSchema = Joi.object({
   commuterPhone: Joi.string().pattern(/^\d{10}$/).required().example('0712345678'),
-  tripId: Joi.string().required(),
+  scheduleEntryId: Joi.string().required(),
   busId: Joi.string().required(),
   routeId: Joi.string().required(),
   seatNumber: Joi.number().integer().min(1).required(),
@@ -46,10 +46,10 @@ const updateTicketValidationSchema = Joi.object({
  *           type: string
  *         description: The phone number of the commuter
  *       - in: query
- *         name: tripId
+ *         name: scheduleEntryId
  *         schema:
  *           type: string
- *         description: The ID of the trip
+ *         description: The ID of the scheduleEntry
  *       - in: query
  *         name: busId
  *         schema:
@@ -104,7 +104,7 @@ router.get(
  *             properties:
  *               commuterPhone:
  *                 type: string
- *               tripId:
+ *               scheduleEntryId:
  *                 type: string
  *               busId:
  *                 type: string
@@ -135,58 +135,17 @@ router.post(
 
 /**
  * @swagger
- * /tickets/confirm:
- *   post:
- *     summary: Confirm a ticket using OTP
- *     tags: [Tickets]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               ticketId:
- *                 type: string
- *               otp:
- *                 type: string
- *     responses:
- *       200:
- *         description: Ticket confirmed successfully
- *       400:
- *         description: Invalid OTP or bad request
- *       404:
- *         description: Ticket not found
- */
-router.post(
-  '/confirm',
-  authenticateToken,
-  authorizeRoles(['commuter']),
-  validateRequest(confirmTicketValidationSchema),
-  (req, res, next) => {
-    logger.info(`Confirming ticket with ID: ${req.body.ticketId}`);
-    next();
-  },
-  ticketController.confirmTicket
-);
-
-/**
- * @swagger
  * /tickets/{id}:
- *   put:
- *     summary: Update a ticket by ID
+ *   patch:
+ *     summary: Update a ticket
  *     tags: [Tickets]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the ticket to update
+ *         description: Ticket ID
  *     requestBody:
  *       required: true
  *       content:
@@ -194,6 +153,11 @@ router.post(
  *           schema:
  *             type: object
  *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: ['confirmed']
+ *               otp:
+ *                 type: string
  *               seatNumber:
  *                 type: number
  *               paymentType:
@@ -202,12 +166,8 @@ router.post(
  *     responses:
  *       200:
  *         description: Ticket updated successfully
- *       400:
- *         description: Bad request or confirmed ticket cannot be updated
- *       404:
- *         description: Ticket not found
  */
-router.put(
+router.patch(
   '/:id',
   authenticateToken,
   authorizeRoles(['commuter']),
