@@ -16,19 +16,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x' # Use a stable Node.js version
+          node-version: '18.x'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Install Heroku CLI
-        run: curl https://cli-assets.heroku.com/install.sh | sh
-
       - name: Deploy to Heroku
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: |
-          echo -e "machine api.heroku.com\n  login api\n  password $HEROKU_API_KEY\nmachine git.heroku.com\n  login api\n  password $HEROKU_API_KEY" > ~/.netrc
-          chmod 600 ~/.netrc
-          git remote add heroku https://git.heroku.com/gamanapi.git || git remote set-url heroku https://git.heroku.com/gamanapi.git
-          git push heroku main
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "gamanapi"
+          heroku_email: "your-email@example.com"
