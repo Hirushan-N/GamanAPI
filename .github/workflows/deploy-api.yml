@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: '18.x' # Use a stable Node.js version
 
       - name: Install dependencies
         run: npm install
@@ -28,7 +28,7 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          echo "machine api.heroku.com login $HEROKU_API_KEY" >> ~/.netrc
-          echo "machine git.heroku.com login $HEROKU_API_KEY" >> ~/.netrc
-          git remote add heroku https://git.heroku.com/gamanapi.git
+          echo -e "machine api.heroku.com\n  login api\n  password $HEROKU_API_KEY\nmachine git.heroku.com\n  login api\n  password $HEROKU_API_KEY" > ~/.netrc
+          chmod 600 ~/.netrc
+          git remote add heroku https://git.heroku.com/gamanapi.git || git remote set-url heroku https://git.heroku.com/gamanapi.git
           git push heroku main
