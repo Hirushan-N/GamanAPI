@@ -7,8 +7,13 @@ const cors = require('cors');
 const swaggerSetup = require('./swagger');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const routeRoutes = require('./routes/routeRoutes');
 const busRoutes = require('./routes/busRoutes');
+const routeRoutes = require('./routes/routeRoutes');
+const scheduleRoutes = require('./routes/scheduleRoutes');
+const scheduleEntryRoutes = require('./routes/scheduleEntryRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
+const morgan = require('morgan');
+const logger = require('./utils/logger');
 
 dotenv.config();
 connectDB();
@@ -32,9 +37,12 @@ app.get('/', (req, res) => {
 //============================ROUTES============================//
 app.use('/api/auth', authRoutes); // Use auth routes
 app.use('/api/users', userRoutes); // Use users routes
-app.use('/api/routes', routeRoutes); // Use bus-routes routes
 app.use('/api/buses', busRoutes); // Use bus routes
-
+app.use('/api/routes', routeRoutes); // Use bus-routes routes
+app.use('/api/schedules', scheduleRoutes); // Use schedules routes
+app.use('/api/schedules', scheduleEntryRoutes); // Use schedules routes
+app.use('/api/tickets', ticketRoutes); // Use tickets routes
+app.use(morgan('combined', { stream: logger.stream }));
 
 
 swaggerSetup(app);

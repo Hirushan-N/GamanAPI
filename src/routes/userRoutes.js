@@ -1,7 +1,10 @@
 const express = require('express');
 const userController = require('../controllers/userController');
-const router = express.Router();
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+const { validateRequest } = require('../middleware/validationMiddleware');
+const logger = require('../utils/logger');
+const Joi = require('joi');
+const router = express.Router();
 
 /**
  * @swagger
@@ -9,6 +12,26 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
  *   name: Users
  *   description: User management endpoints
  */
+
+// Validation schemas for user operations
+const registerUserValidationSchema = Joi.object({
+  username: Joi.string().min(3).max(30).required(),
+  password: Joi.string()
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$'))
+    .required()
+    .messages({
+      'string.pattern.base':
+        'Password must contain at least 8 characters, including uppercase, lowercase, number, and special character.',
+    }),
+  role: Joi.string().valid('admin', 'operator', 'commuter').default('commuter'),
+  email: Joi.string().email().required(),
+});
+
+const updateUserValidationSchema = Joi.object({
+  username: Joi.string().min(3).max(30).optional(),
+  role: Joi.string().valid('admin', 'operator', 'commuter').optional(),
+  email: Joi.string().email().optional(),
+});
 
 /**
  * @swagger
@@ -37,7 +60,15 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
  *       400:
  *         description: Bad request
  */
-router.post('/', userController.registerUser);
+router.post(
+  '/',
+  validateRequest(registerUserValidationSchema),
+  (req, res, next) => {
+    logger.info(`Registering new user: ${req.body.username}`);
+    next();
+  },
+  userController.registerUser
+);
 
 /**
  * @swagger
@@ -69,7 +100,16 @@ router.post('/', userController.registerUser);
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticateToken, authorizeRoles(['admin']), userController.searchUsers);
+router.get(
+  '/',
+  authenticateToken,
+  authorizeRoles(['admin']),
+  (req, res, next) => {
+    logger.info('Fetching users with filters:', req.query);
+    next();
+  },
+  userController.searchUsers
+);
 
 /**
  * @swagger
@@ -94,7 +134,16 @@ router.get('/', authenticateToken, authorizeRoles(['admin']), userController.sea
  *       500:
  *         description: Internal server error
  */
-router.get('/:userId', authenticateToken, authorizeRoles(['admin']), userController.getUserById);
+router.get(
+  '/:userId',
+  authenticateToken,
+  authorizeRoles(['admin']),
+  (req, res, next) => {
+    logger.info(`Fetching user with ID: ${req.params.userId}`);
+    next();
+  },
+  userController.getUserById
+);
 
 /**
  * @swagger
@@ -132,7 +181,17 @@ router.get('/:userId', authenticateToken, authorizeRoles(['admin']), userControl
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticateToken, authorizeRoles(['admin']), userController.updateUser);
+router.put(
+  '/:id',
+  authenticateToken,
+  authorizeRoles(['admin']),
+  validateRequest(updateUserValidationSchema),
+  (req, res, next) => {
+    logger.info(`Updating user with ID: ${req.params.id}`);
+    next();
+  },
+  userController.updateUser
+);
 
 /**
  * @swagger
@@ -157,6 +216,15 @@ router.put('/:id', authenticateToken, authorizeRoles(['admin']), userController.
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticateToken, authorizeRoles(['admin']), userController.deleteUser);
+router.delete(
+  '/:id',
+  authenticateToken,
+  authorizeRoles(['admin']),
+  (req, res, next) => {
+    logger.info(`Deleting user with ID: ${req.params.id}`);
+    next();
+  },
+  userController.deleteUser
+);
 
 module.exports = router;
