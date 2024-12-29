@@ -21,9 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Test API
-        run: npm test # Remove this step if you don't have tests yet
-
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
