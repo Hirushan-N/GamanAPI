@@ -19,7 +19,7 @@ exports.searchBuses = async (req, res) => {
     // Build query filters
     const query = {};
     if (filters.busNumber) query.busNumber = new RegExp(`^${filters.busNumber.trim()}$`, 'i');
-    if (filters.capacity) query.capacity = parseInt(filters.capacity);
+    if (filters.capacity  && !isNaN(filters.capacity)) query.capacity = parseInt(filters.capacity);
     if (filters.operatorId) query.operatorId = filters.operatorId.trim();
     if (filters.ownershipType) query.ownershipType = filters.ownershipType.trim();
 

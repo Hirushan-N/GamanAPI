@@ -30,9 +30,7 @@ exports.registerUser = async (req, res) => {
       return res.status(409).json({ error: 'User already exists with this email' });
     }
 
-    // Hash password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword, role, email });
+    const user = new User({ username, password: password, role, email });
 
     await user.save();
     logger.info(`User registered successfully: ${username}`);
