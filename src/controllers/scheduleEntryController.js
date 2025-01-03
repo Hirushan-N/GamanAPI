@@ -39,6 +39,17 @@ exports.getScheduleEntryById = async (req, res) => {
   }
 };
 
+// Get a schedule entries by schedule ID
+exports.getScheduleEntryById = async (req, res) => {
+  try {
+    const entry = await ScheduleEntry.find({ scheduleId: req.params.scheduleId }).populate('scheduleId busId');
+    if (!entry) return res.status(404).json({ error: 'Schedule entry not found' });
+    res.status(200).json(entry);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
 // Create a schedule entry
 exports.createScheduleEntry = async (req, res) => {
   try {

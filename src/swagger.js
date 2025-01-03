@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000/api', // Global base URL
+        url: 'https://gamanapi-a3658577c337.herokuapp.com/api', // Global base URL
       },
     ],
     components: {
